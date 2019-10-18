@@ -18,6 +18,8 @@ def create_app(config_name):
 
     # register the route blueprint to the app
     from .main import main as main_blueprint
+    from .api01 import api_bp as api_blueprint
     app.register_blueprint(main_blueprint)
+    app.register_blueprint(api_blueprint)
 
     return app
