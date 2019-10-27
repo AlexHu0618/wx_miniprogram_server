@@ -31,7 +31,7 @@ STATE_CODE = {'200': {'code': 200, 'message': 'successful'},
               '203': {'code': 203, 'message': 'accessed and handle error'},
               '204': {'code': 204, 'message': 'accessed and return none'},
               '205': {'code': 205, 'message': 'successful'},
-              '206': {'code': 206, 'message': 'successful'},
+              '206': {'code': 206, 'message': 'sub successful'},
               '400': {'code': 400, 'message': 'request error, wrong param'},
               '409': {'code': 409, 'message': 'DB error'}}
 
