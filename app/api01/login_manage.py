@@ -40,17 +40,38 @@ class UserLogin(Resource):
         iv = parser.parse_args().get('iv')
         if js_code:
             session_info = wx_api.exchange_code_for_session_key(code=js_code)
-            if 'unionid' in session_info:
-                ## someone has subscribed the Official Account
-                unionid_user = session_info['unionid']
+            print('session_info ', session_info)
+            if 'openid' in session_info:
                 minip_openid = session_info['openid']
-                rsl = Patient.query.filter_by(unionid=unionid_user).one()
+                unionid = session_info['unionid']
+                print('unionid ', unionid)
+                print('minip_openid ', minip_openid)
+                rsl = Patient.query.filter_by(unionid=unionid).first()
                 if rsl:
-                    rsl.minip_openid = minip_openid
-                    db.session.commit()
                     session['unionid'] = session_info['unionid']
+                    return STATE_CODE['200']
                 else:
-                    return STATE_CODE['204']
+                    ## this is a new user and build it
+                    p = Patient(unionid=unionid, minip_openid=minip_openid)
+                    rsl_p = Patient.save(p)
+                    if rsl_p:
+                        session['unionid'] = session_info['unionid']
+                        resp = {'new': True}
+                        return jsonify(dict(resp, **STATE_CODE['200']))
+                    else:
+                        return STATE_CODE['204']
+            # if 'unionid' in session_info:
+            #     ## someone has subscribed the Official Account
+            #     unionid_user = session_info['unionid']
+            #     minip_openid = session_info['openid']
+            #     rsl = Patient.query.filter_by(unionid=unionid_user).one()
+            #     if rsl:
+            #         rsl.minip_openid = minip_openid
+            #         db.session.commit()
+            #         session['unionid'] = session_info['unionid']
+            #     else:
+            #         return STATE_CODE['204']
+
                 # crypt = WXBizDataCrypt(APP_ID, session_info.get('session_key'))
                 # user_info = crypt.decrypt(encrypted_data, iv)
                 # print('user_info', user_info)

@@ -16,6 +16,7 @@ from flask_restful import Api
 from .questionnaire_manage import Questionnaires
 from .user_manage import User, Medicine
 from .login_manage import UserLogin
+from .util import Util
 
 
 api = Api(api_bp)
@@ -24,3 +25,4 @@ api.add_resource(Questionnaires, '/questionnaire')
 api.add_resource(User, '/user')
 api.add_resource(Medicine, '/user/treatment')
 api.add_resource(UserLogin, '/wxlogin')
+api.add_resource(Util, '/util')

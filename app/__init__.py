@@ -32,7 +32,9 @@ STATE_CODE = {'200': {'code': 200, 'message': 'successful'},
               '204': {'code': 204, 'message': 'accessed and return none'},
               '205': {'code': 205, 'message': 'successful'},
               '206': {'code': 206, 'message': 'sub successful'},
+              '207': {'code': 207, 'message': 'the resource has been existed'},
               '400': {'code': 400, 'message': 'request error, wrong param'},
+              '407': {'code': 407, 'message': 'request error, please login again'},
               '409': {'code': 409, 'message': 'DB error'}}
 
 
@@ -52,6 +54,7 @@ STATE_CODE = {'200': {'code': 200, 'message': 'successful'},
 # 204——请求收到，但返回信息为空
 # 205——服务器完成了请求，用户代理必须复位当前已经浏览过的文件
 # 206——服务器已经完成了部分用户的GET请求
+# 207——接受和处理,但已存在重复资源,无法完成请求
 #
 # 300——请求的资源可在多处得到
 # 301——删除请求数据
