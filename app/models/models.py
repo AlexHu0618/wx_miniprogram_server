@@ -81,6 +81,7 @@ class Hospital(db.Model, Base):
     name = db.Column(db.String(255))
 
     questionnaires = db.relationship('Questionnaire', backref=db.backref('hospitals'))
+    doctors = db.relationship('Doctor', backref=db.backref('hospital'))
 
 
 class Department(db.Model, Base):
@@ -99,7 +100,7 @@ class Doctor(db.Model, Base):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), server_default=db.FetchedValue())
     department_id = db.Column(db.Integer)
-    hospital_id = db.Column(db.Integer)
+    hospital_id = db.Column(db.ForeignKey('info_hospital.id'))
     medicine_id = db.Column(db.Integer)
     role_id = db.Column(db.ForeignKey('info_role.id'), index=True)
     nickname = db.Column(db.String(20))

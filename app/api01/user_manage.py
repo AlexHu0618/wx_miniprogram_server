@@ -11,7 +11,7 @@ from flask_restful import Resource, reqparse, request
 from flask import jsonify, session
 from .. import db
 from app import STATE_CODE
-from ..models import Patient, MapPatientQuestionnaire, Questionnaire
+from ..models import Patient, MapPatientQuestionnaire, Questionnaire, Doctor, Hospital
 import datetime
 
 parser = reqparse.RequestParser()
@@ -131,7 +131,10 @@ class Medicine(Resource):
             t_list = []
             for r in rsl:
                 which_day_on = (datetime.datetime.now() - r.dt_built).days + 1
-                t = {'hospital': r.questionnaire.hospitals.name, 'subject': r.questionnaire.departments.name,
+                rsl_d = Doctor.query.filter_by(id=r.doctor_id).one_or_none()
+                print(rsl_d)
+                hospital = rsl_d.hospital.name
+                t = {'hospital': hospital, 'subject': r.questionnaire.departments.name,
                      'treatment': r.questionnaire.medicines.name, 'id': r.id, 'state': r.status,
                      'cycle': r.questionnaire.total_days, 'current': which_day_on,
                      'start': datetime.datetime.strftime(r.dt_built, '%Y-%m-%d')}
@@ -153,7 +156,8 @@ class Medicine(Resource):
         weight = parser.parse_args().get('weight')
         is_drink = parser.parse_args().get('drinking')
         is_smoking = parser.parse_args().get('smoking')
-        qn = Questionnaire.query.filter_by(hospital_id=hospital_id, department_id=department_id, medicine_id=medicine_id).one()
+        qn = Questionnaire.query.filter_by(medicine_id=medicine_id).one()
+        # qn = Questionnaire.query.filter_by(hospital_id=hospital_id, department_id=department_id, medicine_id=medicine_id).one()
         p = Patient.query.filter_by(unionid=unionid).one()
         if qn and p:
             qnid = qn.id
