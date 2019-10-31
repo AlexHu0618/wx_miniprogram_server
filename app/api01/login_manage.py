@@ -36,19 +36,17 @@ class UserLogin(Resource):
     def post(self):
         print(request.get_json())
         js_code = parser.parse_args().get('code')
-        encrypted_data = parser.parse_args().get('encryptedData')
-        iv = parser.parse_args().get('iv')
+        # encrypted_data = parser.parse_args().get('encryptedData')
+        # iv = parser.parse_args().get('iv')
         if js_code:
             session_info = wx_api.exchange_code_for_session_key(code=js_code)
             print('session_info ', session_info)
             if 'openid' in session_info:
                 minip_openid = session_info['openid']
                 unionid = session_info['unionid']
-                print('unionid ', unionid)
-                print('minip_openid ', minip_openid)
-                rsl = Patient.query.filter_by(unionid=unionid).first()
+                rsl = Patient.query.filter_by(unionid=unionid).one_or_none()
                 if rsl:
-                    session['unionid'] = session_info['unionid']
+                    session['unionid'] = unionid
                     return STATE_CODE['200']
                 else:
                     ## this is a new user and build it

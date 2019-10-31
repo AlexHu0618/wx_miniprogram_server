@@ -267,8 +267,8 @@ class MapPatientQuestionnaire(db.Model, Base):
     days_remained = db.Column(db.Integer)
     interval = db.Column(db.Integer)
     age = db.Column(db.Integer)
-    is_need_send_task = db.Column(db.Integer)
-    need_answer_module = db.Column(db.String(50), server_default=db.FetchedValue())
+    need_send_task_module = db.Column(db.String(100), server_default=db.FetchedValue())
+    need_answer_module = db.Column(db.String(100), server_default=db.FetchedValue())
 
     doctor = db.relationship('Doctor', primaryjoin='MapPatientQuestionnaire.doctor_id == Doctor.id', backref=db.backref('map_patient_questionnaires'))
     questionnaire = db.relationship('Questionnaire', primaryjoin='MapPatientQuestionnaire.questionnaire_id == Questionnaire.id', backref=db.backref('map_patient_questionnaires'))

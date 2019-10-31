@@ -121,15 +121,29 @@ class Questionnaires(Resource):
         if rsl_qn and rsl_p:
             pid = rsl_p.id
             if answer_list:
+                update_mpqn = {}
                 for a in answer_list:
                     score = 0
+                    qid = a['questionID']
                     if a['type'] == 1:
                         oid = int(a['answer'])
                         o = Option.query.filter_by(id=oid).one()
                         if o:
                             score = o.score
+                            ## handle the special status
+                            if o.id == 1397:
+                                ## stop push
+                                update_mpqn['status'] = 3
+                            if o.id == 1398:
+                                s = QuestionnaireStruct.query.filter_by(id=o.goto).one()
+                                if s:
+                                    update_mpqn['current_period'] = s.period
+                                    update_mpqn['days_remained'] = s.day_end - s.day_start + 2  ## 由于每天答题后的0点会减去1天，所以此处为2
+                                    update_mpqn['interval'] = s.interval
+                                else:
+                                    return STATE_CODE['203']
                         else:
-                            pass
+                            return STATE_CODE['203']
                     r = ResultShudaifu(patient_id=pid, question_id=a['questionID'], answer=a['answer'], type=a['type'],
                                        is_doctor=0, score=score, dt_answer=datetime.datetime.now())
                     db.session.add(r)
@@ -140,6 +154,8 @@ class Questionnaires(Resource):
                         mpqn.need_answer_module = re.split(',', mpqn.need_answer_module).remove(str(mid))
                     else:
                         return STATE_CODE['203']
+                    if update_mpqn:
+                        MapPatientQuestionnaire.query.filter_by(patient_id=pid, questionnaire_id=qnid).update(update_mpqn)
                     db.session.commit()
                     return STATE_CODE['200']
                 except Exception as e:

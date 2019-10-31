@@ -70,6 +70,7 @@ class User(Resource):
                 rsl_u.sex = sex
                 rsl_u.birthday = birthday
                 rsl_u.nation = nation
+                rsl_u.dt_register = datetime.datetime.now()
                 try:
                     db.session.commit()
                     return STATE_CODE['200']
@@ -91,6 +92,26 @@ class User(Resource):
     #             return STATE_CODE['200']
     #         except Exception as e:
     #             return STATE_CODE['409']
+
+
+class UserStatus(Resource):
+    def get(self):
+        unionid = session['unionid']
+        hassession = True
+        hasfocus = True
+        isnew = False
+        if unionid is None:
+            hassession = False
+        rsl_p = Patient.query.filter_by(unionid=unionid).one_or_none()
+        if rsl_p:
+            if rsl_p.dt_subscribe is None:
+                hasfocus = False
+            if rsl_p.name is None:
+                isnew = True
+            resp = {'isNew': isnew, 'hasSession': hassession, 'hasFocus': hasfocus}
+            return jsonify(dict(resp, **STATE_CODE['200']))
+        else:
+            return STATE_CODE['204']
 
 
 class Medicine(Resource):
@@ -146,10 +167,12 @@ class Medicine(Resource):
                 map_p_qn = MapPatientQuestionnaire(patient_id=pid, questionnaire_id=qnid, score=0, status=0,
                                                    dt_built=datetime.datetime.now(), dt_lasttime=datetime.datetime.now(),
                                                    current_period=1, weight=weight, height=height, is_smoking=is_smoking,
-                                                   is_drink=is_drink, age=age, is_need_send_task=0, days_remained=10,
+                                                   is_drink=is_drink, age=age, need_send_task_module=None, days_remained=10,
                                                    doctor_id=doctor_id)
                 rsl = MapPatientQuestionnaire.save(map_p_qn)
                 if rsl:
+                    sql = 'INSERT INTO map_doctor_patient (doctor_id, patient_id) VALUES (%d, %d)' % (doctor_id, pid)
+                    db.session.execute(sql)
                     return STATE_CODE['200']
                 else:
                     return STATE_CODE['203']

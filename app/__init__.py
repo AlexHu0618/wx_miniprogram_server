@@ -35,7 +35,8 @@ STATE_CODE = {'200': {'code': 200, 'message': 'successful'},
               '207': {'code': 207, 'message': 'the resource has been existed'},
               '400': {'code': 400, 'message': 'request error, wrong param'},
               '407': {'code': 407, 'message': 'request error, please login again'},
-              '409': {'code': 409, 'message': 'DB error'}}
+              '409': {'code': 409, 'message': 'DB error'},
+              '600': {'code': 600, 'message': 'have not subscribe the offical account'}}
 
 
 # 1xx：信息响应类，表示接收到请求并且继续处理
@@ -90,3 +91,5 @@ STATE_CODE = {'200': {'code': 200, 'message': 'successful'},
 # 503——服务器过载或暂停维修
 # 504——关口过载，服务器使用另一个关口或服务来响应用户，等待时间设定值较长
 # 505——服务器不支持或拒绝支请求头中指定的HTTP版本
+#
+# 600——用户尚未关注公众号
