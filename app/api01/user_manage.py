@@ -106,7 +106,7 @@ class UserStatus(Resource):
         if rsl_p:
             if rsl_p.dt_subscribe is None:
                 hasfocus = False
-            if rsl_p.name is None:
+            if rsl_p.name is None or rsl_p.sex is None or rsl_p.birthday is None:
                 isnew = True
             resp = {'isNew': isnew, 'hasSession': hassession, 'hasFocus': hasfocus}
             return jsonify(dict(resp, **STATE_CODE['200']))
@@ -130,7 +130,7 @@ class Medicine(Resource):
         if rsl:
             t_list = []
             for r in rsl:
-                which_day_on = (datetime.datetime.now() - r.dt_built).days
+                which_day_on = (datetime.datetime.now() - r.dt_built).days + 1
                 t = {'hospital': r.questionnaire.hospitals.name, 'subject': r.questionnaire.departments.name,
                      'treatment': r.questionnaire.medicines.name, 'id': r.id, 'state': r.status,
                      'cycle': r.questionnaire.total_days, 'current': which_day_on,
@@ -164,11 +164,13 @@ class Medicine(Resource):
                 return STATE_CODE['207']
             else:
                 age = datetime.date.today().year - p.birthday.year
+                need_send_task_module = ['582']
+                need_answer_module = ['575']
                 map_p_qn = MapPatientQuestionnaire(patient_id=pid, questionnaire_id=qnid, score=0, status=0,
                                                    dt_built=datetime.datetime.now(), dt_lasttime=datetime.datetime.now(),
                                                    current_period=1, weight=weight, height=height, is_smoking=is_smoking,
-                                                   is_drink=is_drink, age=age, need_send_task_module=None, days_remained=10,
-                                                   doctor_id=doctor_id)
+                                                   is_drink=is_drink, age=age, days_remained=10, doctor_id=doctor_id,
+                                                   need_send_task_module=need_send_task_module, need_answer_module=need_answer_module)
                 rsl = MapPatientQuestionnaire.save(map_p_qn)
                 if rsl:
                     sql = 'INSERT INTO map_doctor_patient (doctor_id, patient_id) VALUES (%d, %d)' % (doctor_id, pid)

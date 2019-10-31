@@ -47,7 +47,12 @@ class UserLogin(Resource):
                 rsl = Patient.query.filter_by(unionid=unionid).one_or_none()
                 if rsl:
                     session['unionid'] = unionid
-                    return STATE_CODE['200']
+                    if rsl.name is None or rsl.sex is None or rsl.birthday is None:
+                        resp = {'new': True}
+                        return jsonify(dict(resp, **STATE_CODE['200']))
+                    else:
+                        session['unionid'] = unionid
+                        return STATE_CODE['200']
                 else:
                     ## this is a new user and build it
                     p = Patient(unionid=unionid, minip_openid=minip_openid)
