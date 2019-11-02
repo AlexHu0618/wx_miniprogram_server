@@ -138,7 +138,7 @@ class Patient(db.Model, Base):
     sex = db.Column(db.Integer)
     birthday = db.Column(db.Date)
     nation = db.Column(db.String(5), server_default=db.FetchedValue())
-    weight = db.Column(db.Float(8, 2))
+    weight = db.Column(db.Integer)
     height = db.Column(db.Integer)
     year_smoking = db.Column(db.Integer)
     year_drink = db.Column(db.Integer)
@@ -168,8 +168,9 @@ class Patient(db.Model, Base):
 class ResultShudaifu(db.Model, Base):
     __tablename__ = 'subtab_result_shudaifu'
 
-    patient_id = db.Column(db.ForeignKey('info_patient.id'), primary_key=True)
-    question_id = db.Column(db.ForeignKey('info_question.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.ForeignKey('info_patient.id'))
+    question_id = db.Column(db.ForeignKey('info_question.id'))
     dt_answer = db.Column(db.DateTime)
     is_doctor = db.Column(db.Integer)
     answer = db.Column(db.String(255))
@@ -253,7 +254,7 @@ class MapPatientQuestionnaire(db.Model, Base):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.ForeignKey('info_patient.id'), unique=True, nullable=False, index=True)
     questionnaire_id = db.Column(db.ForeignKey('info_questionnaire.id'), nullable=False, index=True)
-    weight = db.Column(db.Float(8, 2))
+    weight = db.Column(db.Integer)
     height = db.Column(db.Integer)
     is_smoking = db.Column(db.Integer)
     is_drink = db.Column(db.Integer)
