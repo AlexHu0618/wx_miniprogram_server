@@ -43,7 +43,8 @@ class UserLogin(Resource):
             print('session_info ', session_info)
             if 'openid' in session_info:
                 minip_openid = session_info['openid']
-                unionid = session_info['unionid']
+                unionid = session_info['unionid']  ## it will appear just in wx Author
+                session_key = session_info['session_key']
                 rsl = Patient.query.filter_by(unionid=unionid).one_or_none()
                 if rsl:
                     session['unionid'] = unionid

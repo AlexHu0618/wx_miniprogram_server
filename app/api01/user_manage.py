@@ -29,6 +29,7 @@ parser.add_argument("height", type=str, location=["form", "json", "args"])
 parser.add_argument("weight", type=str, location=["form", "json", "args"])
 parser.add_argument("drinking", type=int, location=["form", "json", "args"])
 parser.add_argument("smoking", type=int, location=["form", "json", "args"])
+parser.add_argument("avatarUrl", type=str, location=["form", "json", "args"])
 
 
 class User(Resource):
@@ -157,6 +158,7 @@ class Medicine(Resource):
         print('height, weight ', height, weight)
         is_drink = parser.parse_args().get('drinking')
         is_smoking = parser.parse_args().get('smoking')
+        url_portrait = parser.parse_args().get('avatarUrl')
         qn = Questionnaire.query.filter_by(medicine_id=medicine_id).one()
         # qn = Questionnaire.query.filter_by(hospital_id=hospital_id, department_id=department_id, medicine_id=medicine_id).one()
         p = Patient.query.filter_by(unionid=unionid).one()
@@ -169,16 +171,16 @@ class Medicine(Resource):
                 return STATE_CODE['207']
             else:
                 age = datetime.date.today().year - p.birthday.year
-                need_send_task_module = ['582']
-                need_answer_module = ['575']
+                need_answer_module = '575'
                 p.weight = int(weight)
                 p.height = int(height)
+                p.url_portrait = url_portrait
                 db.session.commit()
                 map_p_qn = MapPatientQuestionnaire(patient_id=pid, questionnaire_id=qnid, score=0, status=0,
                                                    dt_built=datetime.datetime.now(), dt_lasttime=datetime.datetime.now(),
                                                    current_period=1, weight=int(weight), height=int(height), is_smoking=is_smoking,
                                                    is_drink=is_drink, age=age, days_remained=10, doctor_id=doctor_id,
-                                                   need_send_task_module=need_send_task_module, need_answer_module=need_answer_module)
+                                                   need_answer_module=need_answer_module)
                 rsl = MapPatientQuestionnaire.save(map_p_qn)
                 if rsl:
                     sql = 'INSERT INTO map_doctor_patient (doctor_id, patient_id) VALUES (%d, %d)' % (doctor_id, pid)
