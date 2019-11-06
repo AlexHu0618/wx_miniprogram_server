@@ -171,7 +171,7 @@ class Medicine(Resource):
                 return STATE_CODE['207']
             else:
                 age = datetime.date.today().year - p.birthday.year
-                need_answer_module = '575'
+                need_answer_module = '577'
                 p.weight = int(weight)
                 p.height = int(height)
                 p.url_portrait = url_portrait
