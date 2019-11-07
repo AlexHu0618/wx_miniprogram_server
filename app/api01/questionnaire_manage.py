@@ -125,7 +125,7 @@ class Questionnaires(Resource):
                 for a in answer_list:
                     score = 0
                     qid = a['questionID']
-                    if a['type'] == 1:
+                    if a['type'] == 1:  # single choice
                         oid = int(a['answer'])
                         o = Option.query.filter_by(id=oid).one()
                         if o:
@@ -144,14 +144,31 @@ class Questionnaires(Resource):
                                     return STATE_CODE['203']
                         else:
                             return STATE_CODE['203']
-                    r = ResultShudaifu(patient_id=pid, question_id=a['questionID'], answer=a['answer'], type=a['type'],
-                                       is_doctor=0, score=score, dt_answer=datetime.datetime.now())
-                    db.session.add(r)
+                        r = ResultShudaifu(patient_id=pid, question_id=a['questionID'], answer=a['answer'], type=a['type'],
+                                           is_doctor=0, score=score, dt_answer=datetime.datetime.now())
+                        db.session.add(r)
+                    elif a['type'] == 3:  # gap filling
+                        opt = Option(question_id=qid, content=a['answer'])
+                        rsl_id = opt.save()
+                        if rsl_id:
+                            rsl_oid = Option.query.filter_by(question_id=qid, content=a['answer']).order_by(Option.id.desc()).first()
+                            if rsl_oid:
+                                rsl_sdf = ResultShudaifu(patient_id=pid, answer=rsl_oid.id, is_doctor=0, type=3,
+                                                         dt_answer=datetime.datetime.now(), question_id=qid, )
+                                db.session.add(rsl_sdf)
+                            else:
+                                return STATE_CODE['203']
+                        else:
+                            return STATE_CODE['203']
+                    else:
+                        pass
                     continue
                 try:
                     mpqn = MapPatientQuestionnaire.query.filter_by(patient_id=pid, questionnaire_id=qnid).one()
                     if mpqn:
-                        mpqn.need_answer_module = re.split(',', mpqn.need_answer_module).remove(str(mid))
+                        temp = re.split(',', mpqn.need_answer_module)
+                        temp.remove(str(mid))
+                        mpqn.need_answer_module = temp
                     else:
                         return STATE_CODE['203']
                     if update_mpqn:

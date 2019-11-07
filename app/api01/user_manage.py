@@ -175,6 +175,7 @@ class Medicine(Resource):
                 p.weight = int(weight)
                 p.height = int(height)
                 p.url_portrait = url_portrait
+                print(url_portrait)
                 db.session.commit()
                 map_p_qn = MapPatientQuestionnaire(patient_id=pid, questionnaire_id=qnid, score=0, status=0,
                                                    dt_built=datetime.datetime.now(), dt_lasttime=datetime.datetime.now(),
