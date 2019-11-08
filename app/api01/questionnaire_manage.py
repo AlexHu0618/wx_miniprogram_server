@@ -168,7 +168,10 @@ class Questionnaires(Resource):
                     if mpqn:
                         temp = re.split(',', mpqn.need_answer_module)
                         temp.remove(str(mid))
-                        mpqn.need_answer_module = temp
+                        if temp:
+                            mpqn.need_answer_module = ','.join(temp)
+                        else:
+                            mpqn.need_answer_module = None
                     else:
                         return STATE_CODE['203']
                     if update_mpqn:
