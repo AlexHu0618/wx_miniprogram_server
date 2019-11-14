@@ -119,7 +119,7 @@ class Medicine(Resource):
     def get(self):
         count = parser.parse_args().get('count')
         unionid = session.get('unionid')
-        p = Patient.query.filter_by(unionid=unionid).one()
+        p = Patient.query.filter_by(unionid=unionid).one_or_none()
         if p is None:
             return STATE_CODE['204']
         sql = MapPatientQuestionnaire.query.filter(MapPatientQuestionnaire.patient_id == p.id).order_by(
