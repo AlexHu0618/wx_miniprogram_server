@@ -95,7 +95,7 @@ class Questionnaires(Resource):
                     modules_list += module_list
                 for m in modules_list:
                     # day_pass = (datetime.datetime.now() - qn.dt_built).days
-                    rsl_s = QuestionnaireStruct.query.filter(QuestionnaireStruct.id == m).one()
+                    rsl_s = QuestionnaireStruct.query.filter(QuestionnaireStruct.id == m).one_or_none()
                     if rsl_s:
                         t = rsl_s.time
                         t_str = str(t.hour) + ':' + str(t.minute).zfill(2)
