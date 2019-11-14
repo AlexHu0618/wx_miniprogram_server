@@ -21,6 +21,7 @@ from .. import db
 
 parser = reqparse.RequestParser()
 parser.add_argument("id", type=str, location=["form", "json", "args"])
+parser.add_argument("mappqnid", type=int, location=["form", "json", "args"])
 parser.add_argument("moduleID", type=str, location=["form", "json", "args"])
 parser.add_argument("answer", type=str, location=["form", "json", "args"])
 
@@ -118,6 +119,13 @@ class Questionnaires(Resource):
         unionid = session.get('unionid')
         rsl_qn = Questionnaire.query.filter_by(id=qnid).one()
         rsl_p = Patient.query.filter_by(unionid=unionid).one()
+        time_now = datetime.datetime.now().time()
+        if time_now < datetime.time(15, 0, 0):  ## it is the question yesterday
+            dt_answer = datetime.datetime.now() - datetime.timedelta(hours=datetime.datetime.now().hour,
+                                                                     minutes=datetime.datetime.now().minute,
+                                                                     seconds=datetime.datetime.now().second + 1)
+        else:
+            dt_answer = datetime.datetime.now()
         if rsl_qn and rsl_p:
             pid = rsl_p.id
             if answer_list:
@@ -187,4 +195,18 @@ class Questionnaires(Resource):
         else:
             return STATE_CODE['204']
 
-
+    def put(self):
+        mappqnid = parser.parse_args().get('mappqnid')
+        unionid = session.get('unionid')
+        rsl_mappqn = MapPatientQuestionnaire.query.filter_by(id=mappqnid).one_or_none()
+        if rsl_mappqn:
+            rsl_mappqn.status = 1
+            rsl_mappqn.dt_built = datetime.datetime.now()
+            try:
+                db.session.commit()
+                return STATE_CODE['200']
+            except Exception as e:
+                db.session.rollback()
+                return STATE_CODE['409']
+        else:
+            return STATE_CODE['203']

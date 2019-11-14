@@ -131,14 +131,19 @@ class Medicine(Resource):
         if rsl:
             t_list = []
             for r in rsl:
-                which_day_on = (datetime.datetime.now() - r.dt_built).days + 1
+                if r.dt_built:
+                    which_day_on = (datetime.datetime.now() - r.dt_built).days + 1
+                    start = datetime.datetime.strftime(r.dt_built, '%Y-%m-%d')
+                else:
+                    which_day_on = None
+                    start = None
                 rsl_d = Doctor.query.filter_by(id=r.doctor_id).one_or_none()
                 print(rsl_d)
                 hospital = rsl_d.hospital.name
                 t = {'hospital': hospital, 'subject': r.questionnaire.departments.name,
                      'treatment': r.questionnaire.medicines.name, 'id': r.id, 'state': r.status,
                      'cycle': r.questionnaire.total_days, 'current': which_day_on,
-                     'start': datetime.datetime.strftime(r.dt_built, '%Y-%m-%d')}
+                     'start': start}
                 t_list.append(t)
             resp = {'list': t_list}
             return jsonify(dict(resp, **STATE_CODE['200']))
@@ -178,8 +183,8 @@ class Medicine(Resource):
                 print(url_portrait)
                 db.session.commit()
                 map_p_qn = MapPatientQuestionnaire(patient_id=pid, questionnaire_id=qnid, score=0, status=0,
-                                                   dt_built=datetime.datetime.now(), dt_lasttime=datetime.datetime.now(),
-                                                   current_period=1, weight=int(weight), height=int(height), is_smoking=is_smoking,
+                                                   dt_lasttime=datetime.datetime.now(), is_smoking=is_smoking,
+                                                   current_period=1, weight=int(weight), height=int(height),
                                                    is_drink=is_drink, age=age, days_remained=10, doctor_id=doctor_id,
                                                    need_answer_module=need_answer_module)
                 rsl = MapPatientQuestionnaire.save(map_p_qn)
