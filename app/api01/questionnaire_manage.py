@@ -98,7 +98,7 @@ class Questionnaires(Resource):
                     rsl_s = QuestionnaireStruct.query.filter(QuestionnaireStruct.id == m).one()
                     if rsl_s:
                         t = rsl_s.time
-                        t_str = str(t.hour) + ':' + str(t.minute)
+                        t_str = str(t.hour) + ':' + str(t.minute).zfill(2)
                         item = {'time': t_str, 'name': rsl_s.questionnaires.title, 'id': rsl_s.questionnaire_id,
                                 'moduleID': m}
                         qn_list.append(item)
