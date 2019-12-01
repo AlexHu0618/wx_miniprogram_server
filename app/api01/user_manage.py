@@ -132,7 +132,7 @@ class Medicine(Resource):
             t_list = []
             for r in rsl:
                 if r.dt_built:
-                    which_day_on = (datetime.datetime.now() - r.dt_built).days + 1
+                    which_day_on = (datetime.datetime.now().date() - r.dt_built.date()).days + 1
                     start = datetime.datetime.strftime(r.dt_built, '%Y-%m-%d')
                 else:
                     which_day_on = None

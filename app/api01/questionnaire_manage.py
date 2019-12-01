@@ -32,22 +32,6 @@ class Questionnaires(Resource):
         unionid = session.get('unionid')
         if qnid:
             mid = int(parser.parse_args().get('moduleID'))
-            ## query single questionnaire for one patient
-            # rsl_map = MapPatientQuestionnaire.query.join(Patient, MapPatientQuestionnaire.patient_id == Patient.id).filter(
-            #     Patient.unionid == unionid, MapPatientQuestionnaire.status == 1,
-            #     MapPatientQuestionnaire.questionnaire_id == qnid).one()
-            # if rsl_map:
-            #     period = rsl_map.current_period
-            #     day_now = (datetime.datetime.now() - rsl_map.dt_built).days + 1
-            #     print(day_now)
-            #     rsl_s = QuestionnaireStruct.query.filter(or_(and_(QuestionnaireStruct.period == period,
-            #                                                       QuestionnaireStruct.questionnaire_id == qnid,
-            #                                                       QuestionnaireStruct.respondent == 0),
-            #                                                  and_(QuestionnaireStruct.questionnaire_id == qnid,
-            #                                                       QuestionnaireStruct.period.is_(None),
-            #                                                       QuestionnaireStruct.day_start == day_now,
-            #                                                       QuestionnaireStruct.respondent == 0))).all()
-            #     print(rsl_s)
             rsl_m = QuestionnaireStruct.query.filter_by(id=mid).one()
             if rsl_m:
                 qid_str = re.split(',', rsl_m.question_id_list)
@@ -120,18 +104,19 @@ class Questionnaires(Resource):
         rsl_qn = Questionnaire.query.filter_by(id=qnid).one()
         rsl_p = Patient.query.filter_by(unionid=unionid).one()
         time_now = datetime.datetime.now().time()
-        if time_now < datetime.time(15, 0, 0):  ## it is the question yesterday
+        ## it is the question yesterday
+        if time_now < datetime.time(15, 0, 0):
             dt_answer = datetime.datetime.now() - datetime.timedelta(hours=datetime.datetime.now().hour,
                                                                      minutes=datetime.datetime.now().minute,
                                                                      seconds=datetime.datetime.now().second + 1)
         else:
             dt_answer = datetime.datetime.now()
+
         if rsl_qn and rsl_p:
             pid = rsl_p.id
             if answer_list:
                 update_mpqn = {}
                 for a in answer_list:
-                    score = 0
                     qid = a['questionID']
                     if a['type'] == 1:  # single choice
                         oid = int(a['answer'])
@@ -146,14 +131,15 @@ class Questionnaires(Resource):
                                 s = QuestionnaireStruct.query.filter_by(id=o.goto).one()
                                 if s:
                                     update_mpqn['current_period'] = s.period
-                                    update_mpqn['days_remained'] = s.day_end - s.day_start + 2  ## 由于每天答题后的0点会减去1天，所以此处为2
+                                    update_mpqn['days_remained'] = s.day_end - s.day_start + 1  ## 由于每天答题后的0点会减去1天，所以此处为2
                                     update_mpqn['interval'] = s.interval
+                                    update_mpqn['need_answer_module'] = str(o.goto)
                                 else:
                                     return STATE_CODE['203']
                         else:
                             return STATE_CODE['203']
                         r = ResultShudaifu(patient_id=pid, question_id=a['questionID'], answer=a['answer'], type=a['type'],
-                                           is_doctor=0, score=score, dt_answer=datetime.datetime.now())
+                                           is_doctor=0, score=score, dt_answer=dt_answer)
                         db.session.add(r)
                     elif a['type'] == 3:  # gap filling
                         opt = Option(question_id=qid, content=a['answer'])
@@ -162,7 +148,7 @@ class Questionnaires(Resource):
                             rsl_oid = Option.query.filter_by(question_id=qid, content=a['answer']).order_by(Option.id.desc()).first()
                             if rsl_oid:
                                 rsl_sdf = ResultShudaifu(patient_id=pid, answer=rsl_oid.id, is_doctor=0, type=3,
-                                                         dt_answer=datetime.datetime.now(), question_id=qid, )
+                                                         dt_answer=dt_answer, question_id=qid, )
                                 db.session.add(rsl_sdf)
                             else:
                                 return STATE_CODE['203']
