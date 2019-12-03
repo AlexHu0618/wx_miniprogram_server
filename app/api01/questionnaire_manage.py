@@ -131,9 +131,14 @@ class Questionnaires(Resource):
                                 s = QuestionnaireStruct.query.filter_by(id=o.goto).one()
                                 if s:
                                     update_mpqn['current_period'] = s.period
-                                    update_mpqn['days_remained'] = s.day_end - s.day_start + 1  ## 由于每天答题后的0点会减去1天，所以此处为2
                                     update_mpqn['interval'] = s.interval
                                     update_mpqn['need_answer_module'] = str(o.goto)
+                                    tnow = datetime.datetime.now().time()
+                                    t20 = datetime.time(20, 0, 0)
+                                    if tnow > t20:
+                                        update_mpqn['days_remained'] = s.day_end - s.day_start + 1  ## 由于每天答题后的0点会减去1天，所以此处+1
+                                    else:
+                                        update_mpqn['days_remained'] = s.day_end - s.day_start
                                 else:
                                     return STATE_CODE['203']
                         else:
